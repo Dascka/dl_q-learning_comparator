@@ -1,0 +1,7 @@
+keras==2.0.5
+tensorflow==1.2.1
+vizdoom
+scikit-image
+notify_run
+pandas
+gym
