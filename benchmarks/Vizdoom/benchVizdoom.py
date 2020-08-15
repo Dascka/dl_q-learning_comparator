@@ -11,6 +11,34 @@ import os
 import config.configVizdoom as config
 import sys, getopt
 
+def get_hyperparam(algo : int = 0):
+    '''
+    Return all the hyperparameters tested by the algorithm corresponding to the param algo
+    :param algo: Index of the algorithm. 0 is DQN, 1 is DDQN, 2 is Dueling DQN, 3 is Dueling DDQN, -1 is random.
+    '''
+
+    if algo == -1:
+        mem = [0]
+        lrs = [0]
+        discounts = [0]
+        epsilons = [0]
+        eps_decays = [0]
+        eps_mins = [0]
+        batch_sizes = [0]
+        warmups = [0]
+    else:
+        mems = [50000]
+        lrs = [0.00025, 0.0001]
+        discounts = [0.99]
+        epsilons = [1]
+        eps_decays = [0.99, 0.9]
+        eps_mins = [0.0001]
+        batch_sizes = [32]
+        warmups = [50000]
+
+
+    return mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups
+
 def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
     '''
     Function for benchmarking for VizDoom. We can precise which starting point we want wrt the hyperparameters selectionned and the number of repeat we want. Algo is a number that precise which algorithm we are benchmarking.
@@ -21,15 +49,6 @@ def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
     :param algo: 0 is DQN. 1 is DDQN. 2 is Dueling DQN. 3 is Dueling DDQN. Otherwise it is DQN.
     '''
     agent = DQN
-
-    mems = [50000]
-    lrs = [0.00025, 0.0001]
-    discounts = [0.99]
-    epsilons = [1]
-    eps_decays = [0.99, 0.9]
-    eps_mins = [0.0001]
-    batch_sizes = [32]
-    warmups = [50000]
 
     conf = config.Config()
 
@@ -48,13 +67,8 @@ def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
     elif algo == -1:
         agent = random
         algname = "Aléatoire"
-        lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        warmups = [0]
+
+    mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups = get_hyperparam(algo)
 
     i = 0
     for mem in mems:
@@ -80,8 +94,6 @@ def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
                                             Path("./Results/Vizdoom/" + algname + "/graph/mem"+str(mem)+"/lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/").mkdir(parents=True, exist_ok=True)
                                             Path("./Results/Vizdoom/" + algname + "/graph/mem"+str(mem)+"/lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/csv/").mkdir(parents=True, exist_ok=True)
 
-                                            print("eps %g, eps_dec %g, eps_min %g, gamma %g, ep %g, batch_s %g, mem_s %g, lr_i %g, game_solv" % (conf.epsilon, conf.epsilon_decay, conf.epsilon_min, conf.discount, conf.episode, conf.batch_size, conf.window_size, conf.lr_init))
-
                                             steps, returns, time, kills, ammos = agent(conf)
 
                                             title = "%s :\n eps %g, eps_dec %g, eps_min %g,\n gamma %g, ep %g, batch_s %g,\n mem_s %g,\n lr_i %g, \n time %g" %(algname, conf.epsilon, conf.epsilon_decay, conf.epsilon_min, conf.discount, conf.episode, conf.batch_size, conf.window_size, conf.lr_init, time)
@@ -103,16 +115,6 @@ def graphs(start_path = "Results/Vizdoom/", algo = 0, repeat = 10, start_repeat 
     win_cond = 0
     stop_cond = False
 
-    mems = [50000]
-    lrs = [0.00025, 0.0001]
-    discounts = [0.99]
-    epsilons = [1]
-    #0.9999977 il faut entraîner plus qu'1 millions d'étapes d'entraînement pour que ça soit worth
-    eps_decays = [0.99, 0.9]
-    eps_mins = [0.0001]
-    batch_sizes = [32]
-    warmups = [50000]
-    
     if algo == 0:
         algname = "DQN"
     elif algo == 1:
@@ -123,14 +125,8 @@ def graphs(start_path = "Results/Vizdoom/", algo = 0, repeat = 10, start_repeat 
         algname = "Dueling_DDQN"
     elif algo == -1:
         algname = "Aléatoire"
-        mems = [0]
-        lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        warmups = [0]
+
+    mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups = get_hyperparam(algo)
 
     start_path += algname + "/graph/"
     conf = config.Config()
@@ -164,8 +160,6 @@ def graphs(start_path = "Results/Vizdoom/", algo = 0, repeat = 10, start_repeat 
 
                                         path = start_path + "mem"+str(mem)+"/lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/" + str(l) + ".pdf"
                                         path_csv = start_path + "mem"+str(mem)+"/lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/csv/" + str(l)  + ".csv"
-
-                                        print("eps %g, eps_dec %g, eps_min %g, gamma %g, ep %g, batch_s %g, mem_s %g, lr_i %g, game_solv" % (conf.epsilon, conf.epsilon_decay, conf.epsilon_min, conf.discount, conf.episode, conf.batch_size, conf.window_size, conf.lr_init))
 
                                         tmp_step, tmp_returns, tmp_kills, tmp_ammos = read_csv(path_csv)
                                         steps.append(tmp_step)
@@ -247,14 +241,7 @@ def multi_graphs(start_path = "Results/Vizdoom/", DQN_n = 0, DDQN_n = 0, Dueling
     win_cond = 0
     stop_cond = False
     
-    mems = [50000]
-    lrs = [0.00025, 0.0001]
-    discounts = [0.99]
-    epsilons = [1]
-    eps_decays = [0.99, 0.9]
-    eps_mins = [0.0001]
-    batch_sizes = [32]
-    warmups = [50000]
+    mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups = get_hyperparam(algo = 0)
 
     #DQN part
 
@@ -275,14 +262,7 @@ def multi_graphs(start_path = "Results/Vizdoom/", DQN_n = 0, DDQN_n = 0, Dueling
     #Aléatoire
 
     algname = "Aléatoire"
-    mems = [0]
-    lrs = [0]
-    discounts = [0]
-    epsilons = [0]
-    eps_decays = [0]
-    eps_mins = [0]
-    batch_sizes = [0]
-    warmups = [0]
+    mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups = get_hyperparam(algo = -1)
 
     random_returns, random_steps, random_kills, random_ammos = multi_graphs_reading_single(start_path=start_path+"Aléatoire/graph/", index=0, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, mems=mems, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
@@ -380,15 +360,7 @@ def multi_graphs_same_algo(start_path = "Results/Vizdoom/", index = [0], algo = 
     win_cond = 0
     stop_cond = False
 
-    mems = [50000]
-    lrs = [0.00025, 0.0001]
-    discounts = [0.99]
-    epsilons = [1]
-    #0.9999977 il faut entraîner plus qu'1 millions d'étapes d'entraînement pour que ça soit worth
-    eps_decays = [0.99, 0.9]
-    eps_mins = [0.0001]
-    batch_sizes = [32]
-    warmups = [50000]
+    mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups = get_hyperparam(algo) 
     
     if algo == 0:
         algname = "DQN"
@@ -400,14 +372,6 @@ def multi_graphs_same_algo(start_path = "Results/Vizdoom/", index = [0], algo = 
         algname = "Dueling_DDQN"
     elif algo == -1:
         algname = "Aléatoire"
-        mems = [0]
-        lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        warmups = [0]
 
     returns, steps, kills, ammos = multi_graphs_reading_multiple(start_path=start_path+ algname +"/graph/", index=index, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, mems=mems, warmups=warmups, repeat=repeat,start_repeat = start_repeat)
 

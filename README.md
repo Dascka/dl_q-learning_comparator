@@ -3,7 +3,7 @@
 -----
 
 Python 3.7.4 implementation of a comparator of Q-Learning algorithms such as DQN, Double DQN, Dueling DQN and Dueling Double DQN.
-The bases of the agents implementation come from https://github.com/nilportugues/reinforcement-learning-1 for the CartPole game and from https://github.com/flyyufelix/VizDoom-Keras-RL for the [VizDoom](http://vizdoom.cs.put.edu.pl/) game. Every agent implementation is adapted to work well within this project.
+The bases of the agents implementation come from https://github.com/nilportugues/reinforcement-learning-1 for the CartPole game and from https://github.com/flyyufelix/VizDoom-Keras-RL for the [VizDoom](http://vizdoom.cs.put.edu.pl/) game. Every agent implementation is adapted to work well within this project. 
 
 A project created by Dorian Labeeuw, master student, University of Mons, for his master thesis.
 
@@ -56,7 +56,7 @@ This will launch the training of the algorithm DQN for the game CartPole.
 
 -algo define the algorithm used. It is: random, DQN, DDQN, Dueling or Dueling_DDQN.
 
--param X Y precises the set of hyperparamers to use. See the benchmark file associated to the game to know the different set of hyperparameters. To precise the parameters, the user has to define the starting point X and the ending point Y in the different set of hyperparameters.
+-param X Y precises the set of hyperparameters to use. See the benchmark file associated to the game to know the different set of hyperparameters. To precise the parameters, the user has to define the starting point X and the ending point Y in the different set of hyperparameters.
 
 -repeat X Y precises the number of repeat to perform. A repeat is the number of time a training is performed with the same algorithm, the same game and the same hyperparameters but with a different random seed. The user has to define the starting point of the repeat X and the ending point of the repeat T.
 
@@ -67,3 +67,7 @@ It draws the graphs for every algorithm for the game CartPole. It takes the same
 -algo can take the option all.
 
 -multi define if the tool must draw graphs with data from every algo on the same graph.
+
+### Edit hyperparameters
+
+To change or analyse the hyperparamaters used by the algorithms, you have to go on the corresponding benchmark file in the folder benchmarks. In the function get_hyperparam you can edit the hyperparameters used for each algorithm.

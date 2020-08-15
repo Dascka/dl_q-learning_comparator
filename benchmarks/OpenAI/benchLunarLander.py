@@ -12,7 +12,61 @@ import os
 import config.configOpenAI as config
 import sys, getopt
 
-def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
+def get_hyperparam(algo : int = 0):
+    '''
+    Return all the hyperparameters tested by the algorithm corresponding to the param algo
+    :param algo: Index of the algorithm. 0 is DQN, 1 is DDQN, 2 is Dueling DQN, 3 is Dueling DDQN, -1 is random.
+    '''
+
+    if algo == 0:
+        lrs = [0.001, 0.00025]
+        discounts = [0.99, 0.95]
+        epsilons = [1]
+        eps_decays = [0.996, 0.9999]
+        eps_mins = [0.1]
+        batch_sizes = [64]
+        max_steps = [3000]
+        warmups = [1000]
+    elif algo == 1:
+        lrs = [0.001, 0.00025]
+        discounts = [0.99, 0.95]
+        epsilons = [1]
+        eps_decays = [0.996, 0.9999]
+        eps_mins = [0.1]
+        batch_sizes = [64]
+        warmups = [1000]
+        max_steps = [1000]
+    elif algo == 2:
+        lrs = [0.001, 0.00025]
+        discounts = [0.99, 0.95]
+        epsilons = [1]
+        eps_decays = [0.996, 0.9999]
+        eps_mins = [0.1]
+        batch_sizes = [64]
+        warmups = [1000]
+        max_steps = [3000]
+    elif algo == 3:
+        lrs = [0.00025, 0.001]
+        discounts = [0.999, 0.95]
+        epsilons = [1]
+        eps_decays = [0.9, 0.9999]
+        eps_mins = [0.01]
+        batch_sizes = [64]
+        max_steps = [1000]
+        warmups = [1000]
+    elif algo == -1:
+        lrs = [0]
+        discounts = [0]
+        epsilons = [0]
+        eps_decays = [0]
+        eps_mins = [0]
+        batch_sizes = [0]
+        max_steps = [1000]
+        warmups = [0]
+
+    return lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups
+
+def train(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
     '''
     Function for benchmarking for OpenAI LunarLander. We can precise which starting point we want wrt the hyperparameters selectionned and the number of repeat we want. Algo is a number that precise which algorithm we are benchmarking.
     :param start: Starting point in the list of hyperparameters.
@@ -24,70 +78,24 @@ def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
 
     agent = DQN
 
-    lrs = [0.00025, 0.001]
-    discounts = [0.999, 0.95]
-    epsilons = [1]
-    eps_decays = [0.9, 0.9999]
-    eps_mins = [0.01]
-    batch_sizes = [64]
-    max_steps = [1000]
-    warmups = [1000]
-
     if algo == 0:
         agent = DQN
         algname = "DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        max_steps = [3000]
-        warmups = [1000]
     elif algo == 1:
         agent = DDQN
         algname = "DDQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [1000]
     elif algo == 2:
         agent = Dueling_DQN
         algname = "Dueling_DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [3000]
     elif algo == 3:
         agent = Dueling_DDQN
         algname = "Dueling_DDQN"
-        lrs = [0.00025, 0.001]
-        discounts = [0.999, 0.95]
-        epsilons = [1]
-        eps_decays = [0.9, 0.9999]
-        eps_mins = [0.01]
-        batch_sizes = [64]
-        max_steps = [1000]
-        warmups = [1000]
     elif algo == -1:
         agent = random
         algname = "Aléatoire"
         lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        max_steps = [1000]
-        warmups = [0]
+
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo)
 
     conf = config.Config()
 
@@ -117,7 +125,6 @@ def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
                                             Path("./Results/LunarLander/" + algname + "/graph/"+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/").mkdir(parents=True, exist_ok=True)
                                             Path("./Results/LunarLander/" + algname + "/graph/"+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/csv/").mkdir(parents=True, exist_ok=True)
 
-                                            print("eps %g, eps_dec %g, eps_min %g, gamma %g, ep %g, batch_s %g, mem_s %g, lr_i %g, game_solv" % (conf.epsilon, conf.epsilon_decay, conf.epsilon_min, conf.discount, conf.episode, conf.batch_size, conf.window_size, conf.lr_init))
 
                                             steps, returns, time = agent(conf)
 
@@ -142,55 +149,16 @@ def graphs(start_path = "Results/LunarLander/", algo = 0, repeat = 20, start_rep
     
     if algo == 0:
         algname = "DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        max_steps = [3000]
-        warmups = [1000]
     elif algo == 1:
         algname = "DDQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [1000]
     elif algo == 2:
         algname = "Dueling_DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [3000]
     elif algo == 3:
         algname = "Dueling_DDQN"
-        lrs = [0.00025, 0.001]
-        discounts = [0.999, 0.95]
-        epsilons = [1]
-        eps_decays = [0.9, 0.9999]
-        eps_mins = [0.01]
-        batch_sizes = [64]
-        max_steps = [1000]
-        warmups = [1000]
     elif algo == -1:
         algname = "Aléatoire"
-        lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        max_steps = [1000]
-        warmups = [0]
     
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo)
 
     conf = config.Config()
     start_path += algname + "/graph/"
@@ -221,8 +189,6 @@ def graphs(start_path = "Results/LunarLander/", algo = 0, repeat = 20, start_rep
                                         path = start_path+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/" + str(l) + ".pdf"
                                         path_csv = start_path+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/csv/" + str(l)  + ".csv"
 
-                                        print("eps %g, eps_dec %g, eps_min %g, gamma %g, ep %g, batch_s %g, mem_s %g, lr_i %g, game_solv" % (conf.epsilon, conf.epsilon_decay, conf.epsilon_min, conf.discount, conf.episode, conf.batch_size, conf.window_size, conf.lr_init))
-
                                         tmp_step, tmp_returns = read_csv(path_csv)
                                         steps.append(tmp_step)
                                         returns.append(tmp_returns)
@@ -240,9 +206,9 @@ def graphs(start_path = "Results/LunarLander/", algo = 0, repeat = 20, start_rep
                                         title = "Résultats de l'algorithme aléatoire pour VizDoom \n Moyenne sur les cent derniers épisodes"
 
                                     path =start_path+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/avg100_mean_not_labeled_"+ str(i) +".pdf"
-                                    ep_avgx_mean_plot(returns, False, title, path, False, ylim, True, repeat, stop_cond, win_cond, xlim = [0, 400])
+                                    ep_avgx_mean_plot(returns, False, title, path, False, ylim, True, repeat, stop_cond, win_cond, [0, 400])
                                     path =start_path+"lr"+str(lr)+"/disc"+str(discount)+"/eps"+str(epsilon)+"/eps_dec" + str(eps_decay) + "/b_s" + str(batch_size) + "/" +str(i) + "/avg100_mean_labeled_" + str(i) +".pdf"
-                                    ep_avgx_mean_plot(returns, False, title, path, True, ylim, True, repeat, stop_cond, win_cond, xlim = [0, 400])
+                                    ep_avgx_mean_plot(returns, False, title, path, True, ylim, True, repeat, stop_cond, win_cond, [0, 400])
 
                                     i += 1
 
@@ -262,69 +228,30 @@ def multi_graphs(start_path = "Results/LunarLander/", DQN_n = 0, DDQN_n = 0, Due
 
     #DQN part
 
-    algname = "DQN"
-    lrs = [0.001, 0.00025]
-    discounts = [0.99, 0.95]
-    epsilons = [1]
-    eps_decays = [0.996, 0.9999]
-    eps_mins = [0.1]
-    batch_sizes = [64]
-    max_steps = [3000]
-    warmups = [1000]
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo = 0)
 
     DQN_returns, DQN_steps = multi_graphs_reading_single(start_path=start_path+"DQN/graph/", index=DQN_n, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
     #DDQN
-    lrs = [0.001, 0.00025]
-    discounts = [0.99, 0.95]
-    epsilons = [1]
-    eps_decays = [0.996, 0.9999]
-    eps_mins = [0.1]
-    batch_sizes = [64]
-    warmups = [1000]
-    max_steps = [1000]
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo = 1)
 
     DDQN_returns, DQN_steps = multi_graphs_reading_single(start_path=start_path+"DDQN/graph/", index=DDQN_n, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
     #Dueling DQN
 
-    algname = "Dueling_DQN"
-    lrs = [0.001, 0.00025]
-    discounts = [0.99, 0.95]
-    epsilons = [1]
-    eps_decays = [0.996, 0.9999]
-    eps_mins = [0.1]
-    batch_sizes = [64]
-    warmups = [1000]
-    max_steps = [3000]
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo = 2)
 
     Dueling_returns, Dueling_steps = multi_graphs_reading_single(start_path=start_path+"Dueling_DQN/graph/", index=Dueling_n, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
     #Dueling DDQN
 
-    algname = "Dueling_DDQN"
-    lrs = [0.00025, 0.001]
-    discounts = [0.999, 0.95]
-    epsilons = [1]
-    eps_decays = [0.9, 0.9999]
-    eps_mins = [0.01]
-    batch_sizes = [64]
-    max_steps = [1000]
-    warmups = [1000]
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo = 3)
 
     Dueling_DDQN_returns, Dueling_DDQN_steps = multi_graphs_reading_single(start_path=start_path+"Dueling_DDQN/graph/", index=Dueling_DDQN_n, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
     #Aléatoire
 
-    algname = "Aléatoire"
-    lrs = [0]
-    discounts = [0]
-    epsilons = [0]
-    eps_decays = [0]
-    eps_mins = [0]
-    batch_sizes = [0]
-    max_steps = [1000]
-    warmups = [0]
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo = -1)
 
     random_returns, random_steps = multi_graphs_reading_single(start_path=start_path+"Aléatoire/graph/", index=0, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat, start_repeat = start_repeat)
 
@@ -404,54 +331,16 @@ def multi_graphs_same_algo(start_path = "Results/LunarLander/", index = [0], alg
     
     if algo == 0:
         algname = "DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        max_steps = [3000]
-        warmups = [1000]
     elif algo == 1:
         algname = "DDQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [1000]
     elif algo == 2:
         algname = "Dueling_DQN"
-        lrs = [0.001, 0.00025]
-        discounts = [0.99, 0.95]
-        epsilons = [1]
-        eps_decays = [0.996, 0.9999]
-        eps_mins = [0.1]
-        batch_sizes = [64]
-        warmups = [1000]
-        max_steps = [3000]
     elif algo == 3:
         algname = "Dueling_DDQN"
-        lrs = [0.00025, 0.001]
-        discounts = [0.999, 0.95]
-        epsilons = [1]
-        eps_decays = [0.9, 0.9999]
-        eps_mins = [0.01]
-        batch_sizes = [64]
-        max_steps = [1000]
-        warmups = [1000]
     elif algo == -1:
         algname = "Aléatoire"
-        lrs = [0]
-        discounts = [0]
-        epsilons = [0]
-        eps_decays = [0]
-        eps_mins = [0]
-        batch_sizes = [0]
-        max_steps = [1000]
-        warmups = [0]
+
+    lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, max_steps, warmups = get_hyperparam(algo)
 
     returns, steps = multi_graphs_reading_multiple(start_path=start_path+ algname +"/graph/", index=index, lrs = lrs, discounts=discounts, epsilons=epsilons, eps_decays=eps_decays, eps_mins = eps_mins, batch_sizes=batch_sizes, max_steps=max_steps, warmups=warmups, repeat=repeat,start_repeat = start_repeat)
 
@@ -520,4 +409,4 @@ if __name__ == "__main__":
         elif opt == "--start_repeat":
             start_repeat = arg
 
-    f(int(start), int(end), int(repeat), int(start_repeat))
+    train(int(start), int(end), int(repeat), int(start_repeat))

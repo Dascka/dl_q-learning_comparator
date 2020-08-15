@@ -85,8 +85,6 @@ def main():
     start_repeat = args.repeat[0]
     end_repeat = args.repeat[1]
 
-    print("1")
-
     if args.cp:
         bench = benchCartPole
     elif args.ll:
@@ -94,17 +92,11 @@ def main():
     elif args.vd:
         bench = benchVizdoom
 
-    print("2")
-    print(args.mode)
-
     if args.mode == "train":
         """ ----- Training mode ----- """
-        print("3")
-        bench.f(start_param, end_param, end_repeat, start_repeat, algo)
+        bench.train(start_param, end_param, end_repeat, start_repeat, algo)
 
     elif args.mode == "bench":
-        print("4")
-
         """ ----- Graph mode ----- """
 
         var_all = args.algo == "all"
@@ -123,7 +115,6 @@ def main():
                         for Dueling_DDQN_n in range(start_param, end_param):
                             bench.multi_graphs(DQN_n = DQN_n, DDQN_n=DDQN_n, Dueling_n=Dueling_n, Dueling_DDQN_n=Dueling_DDQN_n)
         else:
-            print('caca')
             bench.graphs(algo = algo, start_repeat=start_repeat, repeat = end_repeat)
             if args.multi:
                 bench.multi_graphs_same_algo(index = list(range(start_param, end_param)), algo = algo, repeat = end_repeat, start_repeat = start_repeat)
