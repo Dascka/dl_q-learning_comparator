@@ -39,7 +39,7 @@ def get_hyperparam(algo : int = 0):
 
     return mems, lrs, discounts, epsilons, eps_decays, eps_mins, batch_sizes, warmups
 
-def f(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
+def train(start: int, stop: int, repeat: int, start_repeat : int = 0, algo = 0):
     '''
     Function for benchmarking for VizDoom. We can precise which starting point we want wrt the hyperparameters selectionned and the number of repeat we want. Algo is a number that precise which algorithm we are benchmarking.
     :param start: Starting point in the list of hyperparameters.
@@ -475,4 +475,4 @@ if __name__ == "__main__":
         elif opt == "--start_repeat":
             start_repeat = arg
 
-    f(int(start), int(end), int(repeat), int(start_repeat))
+    train(int(start), int(end), int(repeat), int(start_repeat))
